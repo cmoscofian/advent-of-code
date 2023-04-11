@@ -3,33 +3,18 @@ use aoc::get_input;
 struct Game {
     player: Hand,
     opponent: Hand,
-}
-
-enum Hand {
-    Rock = 1,
-    Paper = 2,
-    Scissors = 3,
-}
-
-enum Result {
-    Victory = 6,
-    Draw = 3,
-    Lost = 0,
+    expected: Result,
 }
 
 impl Game {
-    fn play(&self) -> u32 {
-        match (&self.player, &self.opponent) {
-            (Hand::Rock, Hand::Rock) => Hand::Rock as u32 + Result::Draw as u32,
-            (Hand::Rock, Hand::Paper) => Hand::Rock as u32 + Result::Lost as u32,
-            (Hand::Rock, Hand::Scissors) => Hand::Rock as u32 + Result::Victory as u32,
-            (Hand::Paper, Hand::Rock) => Hand::Paper as u32 + Result::Victory as u32,
-            (Hand::Paper, Hand::Paper) => Hand::Paper as u32 + Result::Draw as u32,
-            (Hand::Paper, Hand::Scissors) => Hand::Paper as u32 + Result::Lost as u32,
-            (Hand::Scissors, Hand::Rock) => Hand::Scissors as u32 + Result::Lost as u32,
-            (Hand::Scissors, Hand::Paper) => Hand::Scissors as u32 + Result::Victory as u32,
-            (Hand::Scissors, Hand::Scissors) => Hand::Scissors as u32 + Result::Draw as u32,
-        }
+    fn decrypt_by_hand(&self) -> u32 {
+        let result = self.player.check(self.opponent);
+        return self.player as u32 + result as u32;
+    }
+
+    fn decrypt_by_result(&self) -> u32 {
+        let hand = self.expected.choose_hand(self.opponent);
+        return self.expected as u32 + hand as u32;
     }
 }
 
@@ -42,19 +27,70 @@ impl std::str::FromStr for Game {
         Ok(Self {
             player: Hand::from(*d.get(1).unwrap()),
             opponent: Hand::from(*d.get(0).unwrap()),
+            expected: Result::from(*d.get(1).unwrap()),
         })
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Hand {
+    Rock = 1,
+    Paper = 2,
+    Scissors = 3,
+}
+
+impl Hand {
+    fn check(&self, opponent: Self) -> Result {
+        match (self, opponent) {
+            (Hand::Rock, Hand::Paper) => Result::Lose,
+            (Hand::Rock, Hand::Scissors) => Result::Win,
+            (Hand::Paper, Hand::Rock) => Result::Win,
+            (Hand::Paper, Hand::Scissors) => Result::Lose,
+            (Hand::Scissors, Hand::Rock) => Result::Lose,
+            (Hand::Scissors, Hand::Paper) => Result::Win,
+            (_, _) => Result::Draw,
+        }
     }
 }
 
 impl From<&str> for Hand {
     fn from(value: &str) -> Self {
         match value {
-            "A" => Self::Rock,
-            "X" => Self::Rock,
-            "B" => Self::Paper,
-            "Y" => Self::Paper,
-            "C" => Self::Scissors,
-            "Z" => Self::Scissors,
+            "A" | "X" => Self::Rock,
+            "B" | "Y" => Self::Paper,
+            "C" | "Z" => Self::Scissors,
+            _ => unreachable!(),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Result {
+    Win = 6,
+    Draw = 3,
+    Lose = 0,
+}
+
+impl Result {
+    fn choose_hand(&self, opponent: Hand) -> Hand {
+        match (self, opponent) {
+            (Result::Win, Hand::Rock) => Hand::Paper,
+            (Result::Win, Hand::Paper) => Hand::Scissors,
+            (Result::Win, Hand::Scissors) => Hand::Rock,
+            (Result::Lose, Hand::Rock) => Hand::Scissors,
+            (Result::Lose, Hand::Paper) => Hand::Rock,
+            (Result::Lose, Hand::Scissors) => Hand::Paper,
+            (_, x) => x,
+        }
+    }
+}
+
+impl From<&str> for Result {
+    fn from(value: &str) -> Self {
+        match value {
+            "X" => Self::Lose,
+            "Y" => Self::Draw,
+            "Z" => Self::Win,
             _ => unreachable!(),
         }
     }
@@ -65,12 +101,30 @@ fn main() {
 
     let day2_first = first(&input);
     println!("day2-first: {:?}", day2_first);
+
+    let day2_second = second(input);
+    println!("day2-second: {:?}", day2_second);
 }
 
 fn first(input: &String) -> u32 {
     input
         .lines()
-        .map(|x| x.parse::<Game>().expect("should parse into game").play())
+        .map(|x| {
+            x.parse::<Game>()
+                .expect("should parse into game")
+                .decrypt_by_hand()
+        })
+        .sum()
+}
+
+fn second(input: String) -> u32 {
+    input
+        .lines()
+        .map(|x| {
+            x.parse::<Game>()
+                .expect("should parse into game")
+                .decrypt_by_result()
+        })
         .sum()
 }
 
@@ -84,5 +138,12 @@ mod tests {
         let input = read_to_string("input/02/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(15, response);
+    }
+
+    #[test]
+    fn test_second() {
+        let input = read_to_string("input/02/example").expect("should read file successfully");
+        let response = second(input);
+        assert_eq!(12, response);
     }
 }
