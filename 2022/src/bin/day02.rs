@@ -100,10 +100,10 @@ fn main() {
     let input = get_input("02");
 
     let day2_first = first(&input);
-    println!("day2-first: {:?}", day2_first);
+    println!("first: {day2_first}");
 
     let day2_second = second(input);
-    println!("day2-second: {:?}", day2_second);
+    println!("second: {day2_second}");
 }
 
 fn first(input: &String) -> u32 {
