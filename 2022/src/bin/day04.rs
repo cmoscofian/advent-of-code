@@ -10,6 +10,11 @@ impl Section {
         self.first.0 >= self.second.0 && self.first.1 <= self.second.1
             || self.first.0 <= self.second.0 && self.first.1 >= self.second.1
     }
+
+    fn check_overlaps(self) -> bool {
+        self.first.0 >= self.second.0 && self.first.0 <= self.second.1
+            || self.second.0 >= self.first.0 && self.second.0 <= self.first.1
+    }
 }
 
 impl std::str::FromStr for Section {
@@ -38,12 +43,22 @@ fn main() {
 
     let day4_first = first(&input);
     println!("first: {day4_first}");
+
+    let day4_second = second(input);
+    println!("second: {day4_second}");
 }
 
 fn first(input: &String) -> u32 {
     input
         .lines()
         .filter(|x| x.parse::<Section>().unwrap().check_contains())
+        .count() as u32
+}
+
+fn second(input: String) -> u32 {
+    input
+        .lines()
+        .filter(|x| x.parse::<Section>().unwrap().check_overlaps())
         .count() as u32
 }
 
@@ -57,5 +72,12 @@ mod tests {
         let input = read_to_string("input/04/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(2, response);
+    }
+
+    #[test]
+    fn test_second() {
+        let input = read_to_string("input/04/example").expect("should read file successfully");
+        let response = second(input);
+        assert_eq!(4, response);
     }
 }
