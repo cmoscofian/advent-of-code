@@ -9,12 +9,12 @@ struct Game {
 impl Game {
     fn decrypt_by_hand(&self) -> u32 {
         let result = self.player.check(self.opponent);
-        return self.player as u32 + result as u32;
+        self.player as u32 + result as u32
     }
 
     fn decrypt_by_result(&self) -> u32 {
         let hand = self.expected.choose_hand(self.opponent);
-        return self.expected as u32 + hand as u32;
+        self.expected as u32 + hand as u32
     }
 }
 
@@ -22,11 +22,11 @@ impl std::str::FromStr for Game {
     type Err = String;
 
     fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
-        let d = s.split(" ").collect::<Vec<_>>();
+        let d = s.split(' ').collect::<Vec<&str>>();
 
         Ok(Self {
             player: Hand::from(*d.get(1).unwrap()),
-            opponent: Hand::from(*d.get(0).unwrap()),
+            opponent: Hand::from(*d.first().unwrap()),
             expected: Result::from(*d.get(1).unwrap()),
         })
     }
@@ -106,7 +106,7 @@ fn main() {
     println!("second: {day2_second}");
 }
 
-fn first(input: &String) -> u32 {
+fn first(input: &str) -> u32 {
     input
         .lines()
         .map(|x| {

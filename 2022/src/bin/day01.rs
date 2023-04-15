@@ -10,7 +10,7 @@ fn main() {
     println!("second: {day1_second}");
 }
 
-fn first(input: &String) -> u32 {
+fn first(input: &str) -> u32 {
     input
         .split("\n\n")
         .map(|elve| {

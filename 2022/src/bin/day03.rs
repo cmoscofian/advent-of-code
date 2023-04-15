@@ -12,7 +12,7 @@ fn main() {
     println!("second: {day3_second}");
 }
 
-fn first(input: &String) -> u32 {
+fn first(input: &str) -> u32 {
     input
         .lines()
         .map(|r| {
@@ -58,8 +58,7 @@ fn second(input: String) -> u32 {
         let badge = cmp_1
             .iter()
             .filter(|k| cmp_2.contains(k))
-            .filter(|k| cmp_3.contains(k))
-            .next()
+            .find(|k| cmp_3.contains(k))
             .expect("should return a single repeated value from the rucksacks");
 
         result += calculate_value(badge);

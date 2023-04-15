@@ -59,16 +59,16 @@ impl Ship {
 
     fn createmover9001(&mut self, instruction: Instruction) {
         let from_key = self.keys.get(instruction.from - 1).unwrap();
-        let to_key = self.keys.get(instruction.to - 1).unwrap();
-
         let from_stack = self.data.get_mut(from_key).unwrap();
+
         let elements = from_stack
             .drain(from_stack.len() - instruction.moves..)
-            .collect::<Vec<_>>();
+            .collect::<Vec<char>>();
+
+        let to_key = self.keys.get(instruction.to - 1).unwrap();
         let to_stack = self.data.get_mut(to_key).unwrap();
-        for element in elements.iter() {
-            to_stack.push_back(*element);
-        }
+
+        to_stack.extend(elements);
     }
 
     fn get_top_of_stack(&mut self) -> String {

@@ -24,12 +24,12 @@ impl std::str::FromStr for Section {
         let values = s
             .split(',')
             .flat_map(|f| f.split('-').map(|x| x.parse::<u32>().unwrap()))
-            .collect::<Vec<_>>();
+            .collect::<Vec<u32>>();
 
-        let a = values.get(0).unwrap().clone();
-        let b = values.get(1).unwrap().clone();
-        let c = values.get(2).unwrap().clone();
-        let d = values.get(3).unwrap().clone();
+        let a = *values.first().unwrap();
+        let b = *values.get(1).unwrap();
+        let c = *values.get(2).unwrap();
+        let d = *values.get(3).unwrap();
 
         Ok(Self {
             first: if a < b { (a, b) } else { (b, a) },
@@ -48,7 +48,7 @@ fn main() {
     println!("second: {day4_second}");
 }
 
-fn first(input: &String) -> u32 {
+fn first(input: &str) -> u32 {
     input
         .lines()
         .filter(|x| x.parse::<Section>().unwrap().check_contains())
