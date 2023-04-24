@@ -14,12 +14,24 @@ impl Point {
     fn withing_boundaries(&self, x: i32, y: i32) -> bool {
         self.0 >= 0 && self.0 < x && self.1 >= 0 && self.1 < y
     }
+
+    fn tree(&self, field: &[Vec<char>]) -> char {
+        field[self.1 as usize][self.0 as usize]
+    }
 }
 
 impl std::ops::AddAssign for Point {
     fn add_assign(&mut self, rhs: Self) {
         self.0 += rhs.0;
         self.1 += rhs.1;
+    }
+}
+
+impl std::ops::Add for Point {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self(self.0 + rhs.0, self.1 + rhs.1)
     }
 }
 
@@ -39,12 +51,15 @@ fn main() {
 
     let day8_first = first(&input);
     println!("first: {day8_first}");
+
+    let day8_second = second(input);
+    println!("second: {day8_second}");
 }
 
 fn first(input: &str) -> u32 {
     let field = input
         .lines()
-        .map(|f| f.chars().collect::<Vec<_>>())
+        .map(|f| f.chars().collect())
         .collect::<Vec<Vec<char>>>();
 
     let height = field.len() as i32;
@@ -67,23 +82,71 @@ fn first(input: &str) -> u32 {
         (bottom_right, up, left),
     ] {
         while start.withing_boundaries(width, height) {
-            let mut origin = start;
-            let mut tallest = field[origin.1 as usize][origin.0 as usize];
+            let mut tallest = start.tree(&field);
 
-            result.insert(origin);
+            let mut visitor = start;
+            result.insert(visitor);
 
-            while tallest < '9' && origin.withing_boundaries(width, height) {
-                let current = field[origin.1 as usize][origin.0 as usize];
+            while tallest < '9' && visitor.withing_boundaries(width, height) {
+                let current = visitor.tree(&field);
                 if current > tallest {
-                    result.insert(origin);
+                    result.insert(visitor);
                     tallest = current;
                 }
-                origin += look;
+                visitor += look;
             }
             start += step;
         }
     }
     result.len() as u32
+}
+
+fn second(input: String) -> u32 {
+    let field = input
+        .lines()
+        .map(|f| f.chars().collect())
+        .collect::<Vec<Vec<char>>>();
+
+    let height = field.len() as i32;
+    let width = field[0].len() as i32;
+
+    let up = Point::from(Direction::Up);
+    let down = Point::from(Direction::Down);
+    let left = Point::from(Direction::Left);
+    let right = Point::from(Direction::Right);
+
+    let mut best = 0;
+    for y in 0..height {
+        for x in 0..width {
+            let origin = Point(x, y);
+            let house = origin.tree(&field);
+
+            let mut scenic = 1;
+
+            for step in [right, down, left, up] {
+                let mut visitor = origin + step;
+                let mut visible = 0;
+
+                while visitor.withing_boundaries(width, height) {
+                    visible += 1;
+
+                    if visitor.tree(&field) >= house {
+                        break;
+                    }
+
+                    visitor += step;
+                }
+
+                scenic *= visible;
+            }
+
+            if best < scenic {
+                best = scenic
+            }
+        }
+    }
+
+    best
 }
 
 #[cfg(test)]
@@ -96,5 +159,12 @@ mod tests {
         let input = read_to_string("input/08/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(21, response);
+    }
+
+    #[test]
+    fn test_second() {
+        let input = read_to_string("input/08/example").expect("should read file successfully");
+        let response = second(input);
+        assert_eq!(8, response);
     }
 }

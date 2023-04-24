@@ -40,7 +40,7 @@ fn first(input: &str) -> u32 {
             .borrow()
             .values()
             .map(std::rc::Rc::clone)
-            .collect::<Vec<_>>();
+            .collect::<Vec<std::rc::Rc<File>>>();
         tree.extend(children);
 
         let value = current.calculate_size();
@@ -68,7 +68,7 @@ fn second(input: String) -> u32 {
             .borrow()
             .values()
             .map(std::rc::Rc::clone)
-            .collect::<Vec<_>>();
+            .collect::<Vec<std::rc::Rc<File>>>();
 
         tree.extend(children);
 

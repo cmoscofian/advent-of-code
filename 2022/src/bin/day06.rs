@@ -15,7 +15,7 @@ fn first(input: &str) -> u32 {
 
     for ch in chars.windows(4) {
         let mut set = std::collections::HashSet::<char>::new();
-        let chars = ch.iter().map(|(_, c)| *c).collect::<Vec<_>>();
+        let chars = ch.iter().map(|(_, c)| *c).collect::<Vec<char>>();
         set.extend(chars);
         if set.len() == 4 {
             return ch.last().unwrap().0 as u32 + 1;
@@ -30,7 +30,7 @@ fn second(input: String) -> u32 {
 
     for ch in chars.windows(14) {
         let mut set = std::collections::HashSet::<char>::new();
-        let chars = ch.iter().map(|(_, c)| *c).collect::<Vec<_>>();
+        let chars = ch.iter().map(|(_, c)| *c).collect::<Vec<char>>();
         set.extend(chars);
         if set.len() == 14 {
             return ch.last().unwrap().0 as u32 + 1;
