@@ -2,40 +2,37 @@ use aoc::get_input;
 
 #[derive(Default)]
 struct Rope {
-    head: (i32, i32),
-    tail: (i32, i32),
+    knots: Vec<(i32, i32)>,
     visited: std::collections::HashSet<(i32, i32)>,
 }
 
 impl Rope {
+    fn new(knots: usize) -> Self {
+        Self {
+            knots: vec![(0, 0); knots],
+            visited: std::collections::HashSet::new(),
+        }
+    }
+
     fn walk(&mut self, direction: Direction) {
         match direction {
-            Direction::Up => self.head.1 += 1,
-            Direction::Down => self.head.1 -= 1,
-            Direction::Right => self.head.0 += 1,
-            Direction::Left => self.head.0 -= 1,
+            Direction::Up => self.knots[0].1 += 1,
+            Direction::Down => self.knots[0].1 -= 1,
+            Direction::Right => self.knots[0].0 += 1,
+            Direction::Left => self.knots[0].0 -= 1,
         }
 
-        let delta_x = self.head.0 - self.tail.0;
-        let delta_y = self.head.1 - self.tail.1;
+        for i in 1..self.knots.len() {
+            let delta_x = self.knots[i - 1].0 - self.knots[i].0;
+            let delta_y = self.knots[i - 1].1 - self.knots[i].1;
 
-        let abs_x = delta_x.abs();
-        let abs_y = delta_y.abs();
+            if delta_x.abs() > 1 || delta_y.abs() > 1 {
+                self.knots[i].0 += delta_x.signum();
+                self.knots[i].1 += delta_y.signum();
+            }
 
-        if abs_x > 1 && delta_y == 0 {
-            self.tail.0 += delta_x.signum();
+            self.visited.insert(self.knots[self.knots.len() - 1]);
         }
-
-        if abs_y > 1 && delta_x == 0 {
-            self.tail.1 += delta_y.signum();
-        }
-
-        if abs_x > 1 && abs_y > 0 || abs_y > 1 && abs_x > 0 {
-            self.tail.0 += delta_x.signum();
-            self.tail.1 += delta_y.signum();
-        }
-
-        self.visited.insert(self.tail);
     }
 }
 
@@ -66,15 +63,31 @@ fn main() {
 
     let day9_first = first(&input);
     println!("first: {day9_first}");
+
+    let day9_second = second(input);
+    println!("second: {day9_second}");
 }
 
 fn first(input: &str) -> usize {
-    let mut rope = Rope::default();
+    let mut rope = Rope::new(2);
 
     for line in input.lines() {
-        let (direction, moves) = line.split_once(' ').unwrap();
-        for _ in 0..moves.parse().unwrap() {
-            rope.walk(direction.parse().unwrap());
+        let data = line.split(' ').collect::<Vec<&str>>();
+        for _ in 0..data[1].parse().unwrap() {
+            rope.walk(data[0].parse().unwrap());
+        }
+    }
+
+    rope.visited.len()
+}
+
+fn second(input: String) -> usize {
+    let mut rope = Rope::new(10);
+
+    for line in input.lines() {
+        let data = line.split(' ').collect::<Vec<&str>>();
+        for _ in 0..data[1].parse().unwrap() {
+            rope.walk(data[0].parse().unwrap());
         }
     }
 
@@ -91,5 +104,12 @@ mod tests {
         let input = read_to_string("input/09/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(13, response);
+    }
+
+    #[test]
+    fn test_second() {
+        let input = read_to_string("input/09/example2").expect("should read file successfully");
+        let response = second(input);
+        assert_eq!(36, response);
     }
 }
