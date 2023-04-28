@@ -7,7 +7,7 @@ enum Direction {
     Right,
 }
 
-#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+#[derive(Copy, Clone, Eq, Hash, PartialEq)]
 struct Point(i32, i32);
 
 impl Point {

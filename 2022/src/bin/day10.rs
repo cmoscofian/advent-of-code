@@ -5,6 +5,8 @@ fn main() {
 
     let first = first(&input);
     println!("first: {first}");
+
+    second(input);
 }
 
 enum Instruction {
@@ -25,14 +27,14 @@ impl std::str::FromStr for Instruction {
     }
 }
 
-struct CPU {
+struct Cpu {
     x: i32,
     cycle: i32,
     check: i32,
     signal: i32,
 }
 
-impl Default for CPU {
+impl Default for Cpu {
     fn default() -> Self {
         Self {
             x: 1,
@@ -43,39 +45,82 @@ impl Default for CPU {
     }
 }
 
-impl CPU {
-    fn execute(&mut self, instruction: Instruction) {
-        match instruction {
-            Instruction::Noop => {
-                self.evaluate(0);
+impl Cpu {
+    fn execute(&mut self, x: i32, cycles: i32) {
+        for _ in 0..cycles {
+            if self.cycle == self.check {
+                self.signal += self.cycle * self.x;
+                self.check += 40;
             }
-            Instruction::AddX(x) => {
-                self.evaluate(0);
-                self.evaluate(x);
-            }
+            self.cycle += 1;
         }
-    }
 
-    fn evaluate(&mut self, x: i32) {
-        self.cycle += 1;
         self.x += x;
+    }
+}
 
-        if self.cycle == self.check {
-            self.signal += self.cycle * self.x;
-            self.check += 40;
+struct Crt {
+    x: i32,
+    cycle: i32,
+    buffer: String,
+}
+
+impl Default for Crt {
+    fn default() -> Self {
+        Self {
+            x: 1,
+            cycle: 1,
+            buffer: String::new(),
         }
     }
 }
 
+impl Crt {
+    fn draw(&mut self, x: i32, cycles: i32) {
+        for _ in 0..cycles {
+            let col = self.cycle % 40;
+            let pixel = if (col - self.x - 1).abs() < 2 {
+                '#'
+            } else {
+                '.'
+            };
+
+            self.buffer.push(pixel);
+            self.cycle += 1;
+            if col == 0 {
+                self.buffer.push('\n');
+            }
+        }
+
+        self.x += x;
+    }
+}
+
 fn first(input: &str) -> i32 {
-    let mut cpu = CPU::default();
+    let mut cpu = Cpu::default();
 
     for line in input.lines() {
-        let instruction = line.parse::<Instruction>().unwrap();
-        cpu.execute(instruction);
+        match line.parse::<Instruction>().unwrap() {
+            Instruction::Noop => cpu.execute(0, 1),
+            Instruction::AddX(x) => cpu.execute(x, 2),
+        }
     }
 
     cpu.signal
+}
+
+fn second(input: String) -> i32 {
+    let mut crt = Crt::default();
+
+    for line in input.lines() {
+        match line.parse::<Instruction>().unwrap() {
+            Instruction::Noop => crt.draw(0, 1),
+            Instruction::AddX(x) => crt.draw(x, 2),
+        }
+    }
+
+    println!("{}", crt.buffer);
+    0
 }
 
 #[cfg(test)]
@@ -88,5 +133,12 @@ mod tests {
         let input = read_to_string("input/10/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(13140, response);
+    }
+
+    #[test]
+    fn test_second() {
+        let input = read_to_string("input/10/example").expect("should read file successfully");
+        let response = second(input);
+        assert_eq!(0, response);
     }
 }
