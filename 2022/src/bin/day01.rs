@@ -3,11 +3,11 @@ use aoc::get_input;
 fn main() {
     let input = get_input("01");
 
-    let day1_first = first(&input);
-    println!("first: {day1_first}");
+    let first = first(&input);
+    println!("first: {first}");
 
-    let day1_second = second(input);
-    println!("second: {day1_second}");
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> u32 {

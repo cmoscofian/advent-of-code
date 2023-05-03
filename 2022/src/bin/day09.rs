@@ -61,11 +61,11 @@ impl std::str::FromStr for Direction {
 fn main() {
     let input = get_input("09");
 
-    let day9_first = first(&input);
-    println!("first: {day9_first}");
+    let first = first(&input);
+    println!("first: {first}");
 
-    let day9_second = second(input);
-    println!("second: {day9_second}");
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> usize {

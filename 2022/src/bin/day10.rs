@@ -1,14 +1,5 @@
 use aoc::get_input;
 
-fn main() {
-    let input = get_input("10");
-
-    let first = first(&input);
-    println!("first: {first}");
-
-    second(input);
-}
-
 enum Instruction {
     Noop,
     AddX(i32),
@@ -96,6 +87,16 @@ impl Crt {
     }
 }
 
+fn main() {
+    let input = get_input("10");
+
+    let first = first(&input);
+    println!("first: {first}");
+
+    let second = second(input);
+    println!("second: {second}");
+}
+
 fn first(input: &str) -> i32 {
     let mut cpu = Cpu::default();
 
@@ -109,7 +110,7 @@ fn first(input: &str) -> i32 {
     cpu.signal
 }
 
-fn second(input: String) -> i32 {
+fn second(input: String) -> String {
     let mut crt = Crt::default();
 
     for line in input.lines() {
@@ -119,8 +120,7 @@ fn second(input: String) -> i32 {
         }
     }
 
-    println!("{}", crt.buffer);
-    0
+    crt.buffer
 }
 
 #[cfg(test)]
@@ -133,12 +133,5 @@ mod tests {
         let input = read_to_string("input/10/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(13140, response);
-    }
-
-    #[test]
-    fn test_second() {
-        let input = read_to_string("input/10/example").expect("should read file successfully");
-        let response = second(input);
-        assert_eq!(0, response);
     }
 }

@@ -99,11 +99,11 @@ impl From<&str> for Result {
 fn main() {
     let input = get_input("02");
 
-    let day2_first = first(&input);
-    println!("first: {day2_first}");
+    let first = first(&input);
+    println!("first: {first}");
 
-    let day2_second = second(input);
-    println!("second: {day2_second}");
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> u32 {

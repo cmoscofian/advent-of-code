@@ -49,11 +49,11 @@ impl From<Direction> for Point {
 fn main() {
     let input = get_input("08");
 
-    let day8_first = first(&input);
-    println!("first: {day8_first}");
+    let first = first(&input);
+    println!("first: {first}");
 
-    let day8_second = second(input);
-    println!("second: {day8_second}");
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> u32 {

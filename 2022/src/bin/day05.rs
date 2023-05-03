@@ -1,15 +1,5 @@
 use aoc::get_input;
 
-fn main() {
-    let input = get_input("05");
-
-    let day5_first = first(&input);
-    println!("first: {day5_first}");
-
-    let day5_second = second(input);
-    println!("second: {day5_second}");
-}
-
 struct Ship {
     keys: Vec<usize>,
     data: std::collections::HashMap<usize, std::collections::VecDeque<char>>,
@@ -99,6 +89,16 @@ impl std::str::FromStr for Instruction {
         let to = data.get(5).unwrap().parse::<usize>().unwrap();
         Ok(Self { moves, from, to })
     }
+}
+
+fn main() {
+    let input = get_input("05");
+
+    let first = first(&input);
+    println!("first: {first}");
+
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> String {

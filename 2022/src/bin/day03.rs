@@ -2,14 +2,22 @@ use std::collections::HashSet;
 
 use aoc::get_input;
 
+fn calculate_value(c: &char) -> u32 {
+    match (*c).is_uppercase() {
+        true => (*c) as u32 - 38,
+        false => (*c) as u32 - 96,
+    }
+}
+
+
 fn main() {
     let input = get_input("03");
 
-    let day3_first = first(&input);
-    println!("first: {day3_first}");
+    let first = first(&input);
+    println!("first: {first}");
 
-    let day3_second = second(input);
-    println!("second: {day3_second}");
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> u32 {
@@ -33,6 +41,7 @@ fn second(input: String) -> u32 {
 
     let mut idx = 0;
     let lines_vec = input.lines().collect::<Vec<&str>>();
+
     for _ in 0..input.lines().count() / 3 {
         let cmp_1 = HashSet::<char>::from_iter(
             lines_vec
@@ -65,13 +74,6 @@ fn second(input: String) -> u32 {
     }
 
     result
-}
-
-fn calculate_value(c: &char) -> u32 {
-    match (*c).is_uppercase() {
-        true => (*c) as u32 - 38,
-        false => (*c) as u32 - 96,
-    }
 }
 
 #[cfg(test)]

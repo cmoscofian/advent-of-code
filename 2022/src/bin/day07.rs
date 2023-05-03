@@ -18,14 +18,47 @@ impl<'a> File<'a> {
     }
 }
 
+fn parse_filetree(input: &str) -> std::rc::Rc<File> {
+    let root = std::rc::Rc::new(File::default());
+    let mut parent = std::rc::Rc::clone(&root);
+
+    for line in input.lines() {
+        let args = line.split(' ').collect::<Vec<&str>>();
+        match (args[0], args[1]) {
+            ("$", "ls") => {}
+            ("$", "cd") => {
+                parent = match args[2] {
+                    "/" => std::rc::Rc::clone(&root),
+                    ".." => std::rc::Rc::clone(&parent.parent.upgrade().unwrap()),
+                    name => parent.children.borrow().get(name).unwrap().clone(),
+                }
+            }
+            ("dir", name) => {
+                parent.children.borrow_mut().insert(
+                    name,
+                    std::rc::Rc::new(File {
+                        size: std::cell::RefCell::new(0),
+                        parent: std::rc::Rc::downgrade(&parent),
+                        children: std::cell::RefCell::new(std::collections::HashMap::new()),
+                    }),
+                );
+            }
+            (size, _) => {
+                *parent.size.borrow_mut() += size.parse::<u32>().unwrap();
+            }
+        }
+    }
+    root
+}
+
 fn main() {
     let input = get_input("07");
 
-    let day7_first = first(&input);
-    println!("first: {day7_first}");
+    let first = first(&input);
+    println!("first: {first}");
 
-    let day7_second = second(input);
-    println!("second: {day7_second}");
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> u32 {
@@ -79,39 +112,6 @@ fn second(input: String) -> u32 {
     }
 
     result
-}
-
-fn parse_filetree(input: &str) -> std::rc::Rc<File> {
-    let root = std::rc::Rc::new(File::default());
-    let mut parent = std::rc::Rc::clone(&root);
-
-    for line in input.lines() {
-        let args = line.split(' ').collect::<Vec<&str>>();
-        match (args[0], args[1]) {
-            ("$", "ls") => {}
-            ("$", "cd") => {
-                parent = match args[2] {
-                    "/" => std::rc::Rc::clone(&root),
-                    ".." => std::rc::Rc::clone(&parent.parent.upgrade().unwrap()),
-                    name => parent.children.borrow().get(name).unwrap().clone(),
-                }
-            }
-            ("dir", name) => {
-                parent.children.borrow_mut().insert(
-                    name,
-                    std::rc::Rc::new(File {
-                        size: std::cell::RefCell::new(0),
-                        parent: std::rc::Rc::downgrade(&parent),
-                        children: std::cell::RefCell::new(std::collections::HashMap::new()),
-                    }),
-                );
-            }
-            (size, _) => {
-                *parent.size.borrow_mut() += size.parse::<u32>().unwrap();
-            }
-        }
-    }
-    root
 }
 
 #[cfg(test)]
