@@ -11,7 +11,7 @@ enum Operation {
 
 #[derive(Default)]
 struct Monkey {
-    items: std::collections::VecDeque<i64>,
+    items: Vec<i64>,
     operation: Operation,
     test: i64,
     destination: (usize, usize),
@@ -43,7 +43,7 @@ impl std::str::FromStr for Monkey {
                     monkey.items = list
                         .split(',')
                         .map(|f| f.trim().parse::<i64>().unwrap())
-                        .collect::<std::collections::VecDeque<i64>>();
+                        .collect::<Vec<i64>>();
                 }
                 "Operation:" => {
                     monkey.operation = match (words[4], words[5]) {
@@ -79,6 +79,9 @@ fn main() {
 
     let first = first(&input);
     println!("first: {first}");
+
+    let second = second(input);
+    println!("second: {second}");
 }
 
 fn first(input: &str) -> usize {
@@ -90,7 +93,7 @@ fn first(input: &str) -> usize {
 
     for _ in 0..20 {
         for i in 0..monkeys.len() {
-            while let Some(item) = monkeys[i].items.pop_front() {
+            while let Some(item) = monkeys[i].items.pop() {
                 let nitem = monkeys[i].operate(item) / 3;
                 let dest = if nitem % monkeys[i].test == 0 {
                     monkeys[i].destination.0
@@ -98,18 +101,55 @@ fn first(input: &str) -> usize {
                     monkeys[i].destination.1
                 };
                 monkeys[i].inspections += 1;
-                monkeys[dest].items.push_back(nitem);
+                monkeys[dest].items.push(nitem);
             }
         }
     }
 
-    let mut resp = monkeys
+    let mut monkey_business = monkeys
         .iter()
         .map(|m| m.inspections)
         .collect::<Vec<usize>>();
 
-    resp.sort_by(|a, b| b.cmp(a));
-    resp[0] * resp[1]
+    monkey_business.sort_by(|a, b| b.cmp(a));
+    monkey_business[0] * monkey_business[1]
+}
+
+fn second(input: String) -> usize {
+    let data = input.split("\n\n").collect::<Vec<&str>>();
+    let mut monkeys = data
+        .iter()
+        .map(|f| f.parse::<Monkey>().unwrap())
+        .collect::<Vec<Monkey>>();
+
+    let modval = monkeys.iter().map(|m| m.test).product::<i64>();
+
+    for _ in 0..10_000 {
+        for i in 0..monkeys.len() {
+            while let Some(item) = monkeys[i].items.pop() {
+                // Shamelessly stolen from someone else...
+                // I don't fully get this, why would modding the least common multiple would yield
+                // the same solution?
+                let nitem = monkeys[i].operate(item) % modval;
+
+                let dest = if nitem % monkeys[i].test == 0 {
+                    monkeys[i].destination.0
+                } else {
+                    monkeys[i].destination.1
+                };
+                monkeys[i].inspections += 1;
+                monkeys[dest].items.push(nitem);
+            }
+        }
+    }
+
+    let mut monkey_business = monkeys
+        .iter()
+        .map(|m| m.inspections)
+        .collect::<Vec<usize>>();
+
+    monkey_business.sort_by(|a, b| b.cmp(a));
+    monkey_business[0] * monkey_business[1]
 }
 
 #[cfg(test)]
@@ -122,5 +162,12 @@ mod tests {
         let input = read_to_string("input/11/example").expect("should read file successfully");
         let response = first(&input);
         assert_eq!(10605, response);
+    }
+
+    #[test]
+    fn test_second() {
+        let input = read_to_string("input/11/example").expect("should read file successfully");
+        let response = second(input);
+        assert_eq!(2713310158, response);
     }
 }
